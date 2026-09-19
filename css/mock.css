@@ -1,0 +1,117 @@
+/* ============================================================
+   IELTS PRO 150 — mock.css
+   Mock exam bar · stage timeline · preference switches ·
+   final report · review-center extras
+   ============================================================ */
+
+/* ---------- Pause rules (mock always; strict practice optional) ---------- */
+body[data-mock] [id$="-pause"],
+body[data-strict-pause] [id$="-pause"] { display: none !important; }
+
+/* clock click-to-pause follows the same rules */
+body[data-mock] .timer-display.clickable,
+body[data-strict-pause] .timer-display.clickable { cursor: default; }
+body[data-mock] .timer-display.clickable:hover,
+body[data-strict-pause] .timer-display.clickable:hover { background: none; }
+
+/* ---------- Floating mock bar ---------- */
+#mock-bar {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: 24px; z-index: 120;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: min(720px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: 14px;
+  padding: 11px 16px;
+  box-shadow: var(--shadow-2);
+  animation: fadeUp .3s ease both;
+}
+.mockbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.mockbar-left .icon { color: var(--accent); flex-shrink: 0; }
+.mockbar-left strong { font-family: var(--font-head); font-size: 13.5px; display: block; letter-spacing: .03em; }
+.mockbar-left span { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.mockbar-right { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+.mockbar-right .icon { width: 14px; height: 14px; }
+
+@media (max-width: 1024px) {
+  #mock-bar { bottom: 86px; width: calc(100vw - 24px); max-width: none; }
+}
+
+/* ---------- Stage timeline ---------- */
+.mtl { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.mtl-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.mtl-item .stat-icon { width: 40px; height: 40px; }
+.mtl-item h4 { font-family: var(--font-head); font-size: 14.5px; }
+.mtl-item p { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+.mtl-item.done { background: var(--success-soft); border-color: transparent; }
+.mtl-item.current { border-color: var(--primary-600); box-shadow: 0 0 0 2px var(--primary-soft); }
+.mtl-go { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.mtl-band { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--ink-2); }
+
+/* ---------- Switch toggles (settings & briefing) ---------- */
+.switch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 10px 0; border-bottom: 1px dashed var(--line);
+  font-size: 14px; font-weight: 600; color: var(--ink-2);
+  cursor: pointer;
+}
+.switch-row:last-of-type { border-bottom: none; }
+.switch { position: relative; display: inline-block; width: 44px; height: 25px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch i {
+  position: absolute; inset: 0;
+  background: var(--line-strong); border-radius: 99px; transition: .2s;
+}
+.switch i::before {
+  content: ''; position: absolute;
+  width: 19px; height: 19px; left: 3px; top: 3px;
+  background: #fff; border-radius: 50%; transition: .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.switch input:checked + i { background: var(--success); }
+.switch input:checked + i::before { transform: translateX(19px); }
+
+/* ---------- Final mock report ---------- */
+.rep-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 18px 0; }
+.rep-card {
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 14px 16px; background: var(--surface-2); text-align: center;
+}
+.rep-card h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--ink-3); margin-bottom: 8px; font-family: var(--font-head);
+}
+.rep-card strong { font-family: var(--font-head); font-size: 26px; display: block; line-height: 1.1; }
+.rep-card small { font-size: 11.5px; color: var(--ink-3); display: block; margin-top: 4px; }
+.rep-overall { background: var(--primary); border-color: var(--primary); }
+.rep-overall h4 { color: rgba(255,255,255,.7); }
+.rep-overall strong { color: var(--accent); }
+.rep-overall small { color: rgba(255,255,255,.75); }
+
+.mock-hist-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 11px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; }
+.mock-hist-row:last-child { border-bottom: none; }
+.mock-hist-row .bands { display: flex; gap: 8px; }
+.mock-hist-row .bands span {
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+  padding: 3px 8px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line);
+}
+.mock-hist-row .ov { margin-left: auto; font-family: var(--font-head); font-weight: 800; }
+
+/* ---------- Review center ---------- */
+.rev-filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+.best-note { font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+
+@media (max-width: 900px) {
+  .rep-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  #mock-bar { gap: 10px; padding: 10px 12px; }
+  .mockbar-right { width: 100%; justify-content: flex-end; }
+}

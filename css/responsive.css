@@ -1,0 +1,84 @@
+/* ============================================================
+   IELTS PRO 150 — responsive.css  (final)
+   Breakpoints: 1024px (tablet/landscape), 960px (exam splits),
+   768px, 520px, 400px + short-screen & reduced-motion rules
+   ============================================================ */
+
+/* ---------- ≤ 1024px : sidebar collapses to 7-item bottom nav ---------- */
+@media (max-width: 1024px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .bottom-nav { display: grid; grid-template-columns: repeat(7, 1fr); }
+  body { padding-bottom: 72px; }
+  main { padding: 22px 18px 40px; }
+  .bottom-nav a { font-size: 9px; padding: 5px 1px; gap: 2px; }
+  .bottom-nav a .icon { width: 19px; height: 19px; }
+  .hero { flex-direction: column; align-items: flex-start; }
+  .hero-right { margin-left: 0; text-align: left; width: 100%; }
+  .hero .progressbar { min-width: 0; width: 100%; }
+  .hero-meta { justify-content: flex-start; }
+}
+
+/* ---------- ≤ 960px : two-pane exam layouts stack ---------- */
+@media (max-width: 960px) {
+  /* Reading: passage / questions panes (display switching lives in reading.css) */
+  .rs-mobile-toggle { gap: 8px; }
+  .rs-mobile-toggle .seg-btn {
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    background: var(--surface);
+    flex: 1;
+    text-align: center;
+  }
+
+  /* Overview grids: force single column on phones.
+     !important beats the inline style used by the Listening intro. */
+  .overview-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ---------- ≤ 768px ---------- */
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .topbar { padding: 0 14px; }
+  .brand-text small { display: none; }
+  .plan-item { flex-wrap: wrap; }
+  .plan-item .btn { margin-left: 54px; }
+  .exam-bar { gap: 12px; padding: 11px 14px; }
+  .timer-display { font-size: 20px; }
+  .card, .card-pad-lg, .ai-panel { padding: 18px 16px; }
+  #toast-root { right: 12px; left: 12px; align-items: stretch; bottom: 84px; }
+}
+
+/* ---------- ≤ 520px ---------- */
+@media (max-width: 520px) {
+  main { padding: 16px 12px 40px; }
+  .hero { padding: 22px 18px; border-radius: 15px; }
+  .pill { padding: 6px 10px; font-size: 12.5px; }
+  .page-title { font-size: 22px; }
+  .btn { padding: 11px 16px; font-size: 14px; }
+  .btn-lg { padding: 13px 20px; font-size: 14.5px; }
+  .modal-foot { flex-direction: column-reverse; }
+  .modal-foot .btn { width: 100%; }
+  .field-row { flex-direction: column; }
+  .field-row .btn { width: 100%; }
+  .qgrid { grid-template-columns: repeat(auto-fill, minmax(36px, 1fr)); }
+}
+
+/* ---------- ≤ 400px : very narrow phones ---------- */
+@media (max-width: 400px) {
+  /* Keep the day pill; the streak pill would push the topbar over the edge */
+  .pill-streak { display: none; }
+  .brand-mark { width: 34px; height: 34px; font-size: 13px; }
+  .brand-text { font-size: 15px; }
+}
+
+/* ---------- Short screens (landscape phones) ---------- */
+@media (max-height: 560px) and (orientation: landscape) {
+  .sidebar { padding: 12px; gap: 10px; }
+  .side-target { display: none; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

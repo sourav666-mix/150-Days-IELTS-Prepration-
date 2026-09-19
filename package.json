@@ -1,0 +1,16 @@
+{
+  "name": "ielts-pro-150",
+  "version": "1.0.0",
+  "description": "150-day IELTS Band 8 preparation platform — Reading, Writing & Listening with AI analysis via OpenRouter",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.10.0"
+  }
+}

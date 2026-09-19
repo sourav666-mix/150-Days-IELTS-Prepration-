@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="IELTS Pro 150 — a 150-day structured preparation program for Reading, Writing and Listening, targeting Band 8 with AI-powered analysis." />
+  <meta name="theme-color" content="#16355C" />
+  <title>IELTS Pro 150 — Band 8 Preparation</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316355C'/%3E%3Ctext x='32' y='42' font-family='Arial' font-weight='bold' font-size='26' fill='%23C99A2E' text-anchor='middle'%3E8.0%3C/text%3E%3C/svg%3E" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <!-- Design system (order matters) -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/charts.css" />
+  <link rel="stylesheet" href="css/reading.css" />
+  <link rel="stylesheet" href="css/writing.css" />
+  <link rel="stylesheet" href="css/listening.css" />
+  <link rel="stylesheet" href="css/mock.css" />
+</head>
+<body>
+
+  <!-- ================= SVG ICON SPRITE ================= -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></symbol>
+    <symbol id="ic-book" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="ic-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="ic-headphones" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></symbol>
+    <symbol id="ic-chart" viewBox="0 0 24 24"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="8"/><line x1="18" y1="20" x2="18" y2="4"/></symbol>
+    <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 22c4.4 0 7-2.9 7-6.6 0-4.1-3.2-6.2-4.6-9.1C13.3 4.1 13.2 2 12 2c.2 3-1.7 4.6-3.3 6.6C7.1 10.6 5 12.4 5 15.4 5 19.1 7.6 22 12 22Z"/><path d="M12 22c2 0 3.2-1.6 3.2-3.4 0-2-1.7-3.1-2.5-4.9-.5 1-1.4 1.7-2 2.7-.6.9-.7 2.2-.7 2.4 0 1.7 1 3.2 2 3.2Z"/></symbol>
+    <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></symbol>
+    <symbol id="ic-play" viewBox="0 0 24 24"><polygon points="7 4 20 12 7 20 7 4"/></symbol>
+    <symbol id="ic-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+    <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="ic-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="ic-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
+    <symbol id="ic-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="ic-volume" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+    <symbol id="ic-mic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24"><polygon points="12 2 15.1 8.6 22 9.6 17 14.6 18.2 21.6 12 18.2 5.8 21.6 7 14.6 2 9.6 8.9 8.6 12 2"/></symbol>
+    <symbol id="ic-chev-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 4.9L18.8 9.8l-4.9 1.9L12 16.6l-1.9-4.9L5.2 9.8l4.9-1.9Z"/><path d="M19 14.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9Z"/></symbol>
+    <symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="ic-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8Zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="ic-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+  </svg>
+
+  <!-- ================= APP LAYOUT ================= -->
+  <div class="app">
+
+    <!-- Sidebar (desktop) -->
+    <aside class="sidebar">
+      <div class="side-progress card-soft">
+        <div class="side-progress-top">
+          <span class="kicker">150-day journey</span>
+          <span id="side-percent" class="side-percent">0%</span>
+        </div>
+        <div class="progressbar"><div id="side-progress-fill" class="progressbar-fill" style="width:0%"></div></div>
+        <p id="side-day-label" class="hint">Day 1 of 150 · Foundation</p>
+      </div>
+
+      <nav class="side-nav">
+        <a class="nav-item active" href="#/dashboard" data-view="dashboard"><svg class="icon"><use href="#ic-home"/></svg><span>Dashboard</span></a>
+        <a class="nav-item" href="#/reading"   data-view="reading"><svg class="icon"><use href="#ic-book"/></svg><span>Reading</span><em class="nav-tag">60 min</em></a>
+        <a class="nav-item" href="#/writing"   data-view="writing"><svg class="icon"><use href="#ic-pen"/></svg><span>Writing</span><em class="nav-tag">60 min</em></a>
+        <a class="nav-item" href="#/listening" data-view="listening"><svg class="icon"><use href="#ic-headphones"/></svg><span>Listening</span><em class="nav-tag">30 min</em></a>
+        <a class="nav-item" href="#/progress"  data-view="progress"><svg class="icon"><use href="#ic-chart"/></svg><span>Progress</span></a>
+        <a class="nav-item" href="#/review"    data-view="review"><svg class="icon"><use href="#ic-file"/></svg><span>Review</span></a>
+        <a class="nav-item" href="#/mock"      data-view="mock"><svg class="icon"><use href="#ic-target"/></svg><span>Mock Exam</span><em class="nav-tag">2h30m</em></a>
+      </nav>
+
+      <div class="side-target card-soft">
+        <div class="side-target-row">
+          <svg class="icon accent"><use href="#ic-target"/></svg>
+          <div>
+            <strong>Target: Band 8.0</strong>
+            <p class="hint">No login. All progress is stored on this device.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content column -->
+    <div class="content">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <a class="brand" href="#/dashboard">
+          <span class="brand-mark">150</span>
+          <span class="brand-text">IELTS&nbsp;Pro<small>Band 8 Journey</small></span>
+        </a>
+        <div class="topbar-right">
+          <div class="pill" title="Current day">
+            <svg class="icon"><use href="#ic-calendar"/></svg><span id="dayPill">Day 1 / 150</span>
+          </div>
+          <div class="pill pill-streak" title="Study streak (consecutive days)">
+            <svg class="icon flame"><use href="#ic-flame"/></svg><span id="streakPill">0</span>
+          </div>
+          <button id="themeToggle" class="icon-btn" title="Toggle theme"><svg class="icon"><use href="#ic-moon"/></svg></button>
+          <button id="settingsBtn" class="icon-btn" title="Settings"><svg class="icon"><use href="#ic-gear"/></svg></button>
+        </div>
+      </header>
+
+      <!-- Views -->
+      <main id="main">
+        <section id="view-dashboard" class="view active"></section>
+        <section id="view-reading"   class="view"></section>
+        <section id="view-writing"   class="view"></section>
+        <section id="view-listening" class="view"></section>
+        <section id="view-progress"  class="view"></section>
+        <section id="view-review"    class="view"></section>
+        <section id="view-mock"      class="view"></section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Bottom navigation (mobile — 7 items) -->
+  <nav class="bottom-nav">
+    <a href="#/dashboard" data-view="dashboard"><svg class="icon"><use href="#ic-home"/></svg><span>Home</span></a>
+    <a href="#/reading"   data-view="reading"><svg class="icon"><use href="#ic-book"/></svg><span>Reading</span></a>
+    <a href="#/writing"   data-view="writing"><svg class="icon"><use href="#ic-pen"/></svg><span>Writing</span></a>
+    <a href="#/listening" data-view="listening"><svg class="icon"><use href="#ic-headphones"/></svg><span>Listen</span></a>
+    <a href="#/progress"  data-view="progress"><svg class="icon"><use href="#ic-chart"/></svg><span>Progress</span></a>
+    <a href="#/review"    data-view="review"><svg class="icon"><use href="#ic-file"/></svg><span>Review</span></a>
+    <a href="#/mock"      data-view="mock"><svg class="icon"><use href="#ic-target"/></svg><span>Mock</span></a>
+  </nav>
+
+  <!-- Toasts & modals -->
+  <div id="toast-root" aria-live="polite"></div>
+  <div id="modal-root"></div>
+
+  <noscript><div style="padding:2rem;text-align:center;font-family:sans-serif">Please enable JavaScript to use IELTS Pro 150.</div></noscript>
+
+  <!-- Scripts (order matters: foundations → AI → data banks → modules → prefs → mock/review → boot) -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/prompts.js"></script>
+  <script src="data/study-plan.js"></script>
+  <script src="js/records.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="data/reading-passages.js"></script>
+  <script src="js/reading.js"></script>
+  <script src="data/writing-topics.js"></script>
+  <script src="js/writing.js"></script>
+  <script src="data/listening-data.js"></script>
+  <script src="js/listening.js"></script>
+  <script src="js/exam-prefs.js"></script>
+  <script src="js/mock.js"></script>
+  <script src="js/review.js"></script>
+  <script src="js/boot.js"></script>
+</body>
+</html>

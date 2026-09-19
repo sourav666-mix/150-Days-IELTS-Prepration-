@@ -1,0 +1,15 @@
+# Local Netlify folder
+.netlify
+
+# Dependencies
+node_modules/
+
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+
