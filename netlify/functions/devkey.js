@@ -1,40 +1,14 @@
 /* ============================================================
-   IELTS PRO 150 — Netlify Function: dev-only key bridge
-   ------------------------------------------------------------
-   LOCAL DEVELOPMENT ONLY. Hands the OpenRouter key to the
-   browser so long AI generation calls can bypass the local
-   function emulator's 30-second cap by calling OpenRouter
-   directly.
-
-   Security:
-   • In local dev, netlify-cli injects CONTEXT=dev (and
-     NETLIFY_DEV=1). This handler refuses everything else.
-   • In production, CONTEXT is "production" / "deploy-preview" /
-     "branch-deploy" — this endpoint answers 404 and the app
-     keeps using the secure /api/openrouter proxy, so the key
-     is never exposed on your deployed site.
+   IELTS PRO 150 — Vercel dev-only key bridge
+   404 in production (VERCEL_ENV !== 'development') — the live
+   site uses the secure /api/openrouter proxy instead.
    ============================================================ */
 
-exports.handler = async () => {
-  const isLocalDev =
-    process.env.CONTEXT === 'dev' ||
-    process.env.NETLIFY_DEV === '1';
-
-  if (!isLocalDev) {
-    return { statusCode: 404, body: 'Not found' };
-  }
-
+export default async function handler(_, res) {
+  if (process.env.VERCEL_ENV !== 'development') return res.status(404).end();
   const key = process.env.OPENROUTER_API_KEY;
-  if (!key) {
-    return { statusCode: 404, body: 'Not found' };
-  }
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-store'
-    },
-    body: JSON.stringify({ key })
-  };
-};
+  if (!key) return res.status(404).end();
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).json({ key });
+}
