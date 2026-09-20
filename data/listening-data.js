@@ -1,28 +1,18 @@
 /* ============================================================
-   IELTS PRO 150 — Listening Bank  (v2 — self-healing generator)
-   1) LAudio — Web-Speech audio engine (unchanged from v1).
-   2) ListeningBank.builtin() — complete offline test: 4 sections,
-      full scripts, 40 questions, verified answer keys.
-   3) ListeningBank.gen() — AI generator, v2 strategy:
-        • per-section counts are SOFT — structurally valid output
-          is always accepted
-        • SANITIZE: every section is repaired before assembly —
-          group-type aliases, pool normalization/borrowing, MCQ
-          option & answer validation, fill label/answer repair,
-          broken questions dropped (top-up replaces them)
-        • ASSEMBLY: each section forced to EXACTLY 10 questions —
-          surplus safely trimmed; shortage filled with AI fill
-          top-ups whose answers are verified verbatim in the
-          transcript; a section with a valid transcript is never
-          thrown away, so generation never dead-ends
-        • buildTest renumbers 1–40 and regenerates group titles
-   4) buildTest / validateTest — assembly + final QA.
+   IELTS PRO 150 — Listening Bank  (v3 — FINAL, self-healing)
+   1) LAudio v3 — quality-ranked Web-Speech engine (Natural/
+      Neural voices preferred, robotic voices penalised,
+      Settings-driven voice mode/speed/pitch).
+   2) ListeningBank.builtin() — complete offline test.
+   3) ListeningBank.gen() — self-healing AI generator:
+      soft counts · sanitize · per-section trim/top-up with
+      verbatim-verified answers · real errors surfaced.
    ============================================================ */
 
 'use strict';
 
 /* ==========================================================
-   AUDIO ENGINE — self-contained Web-Speech player
+   AUDIO ENGINE v3 — quality-ranked Web-Speech player
    ========================================================== */
 const LAudio = (() => {
 
@@ -30,6 +20,7 @@ const LAudio = (() => {
   let queue = [];          // [{speaker, text}]
   let idx = 0;
   let rate = 0.95;
+  let userRateSet = false; // true once the user picks a speed this visit
   let state = 'idle';      // idle | playing | paused | done
   let supported = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
   let voices = [];
@@ -37,6 +28,17 @@ const LAudio = (() => {
 
   function on(evt, fn) { (listeners[evt] = listeners[evt] || []).push(fn); }
   function emit(evt, data) { (listeners[evt] || []).forEach(fn => { try { fn(data); } catch {} }); }
+
+  /* ---------- settings ---------- */
+  function settings() {
+    try { return Store.getSettings(); } catch { return {}; }
+  }
+  function getRate() {
+    const r = parseFloat(settings().listenRate);
+    return (isFinite(r) && r >= 0.5 && r <= 1.5) ? r : 0.95;
+  }
+  function voiceMode() { return settings().listenVoiceMode || 'auto'; }   // 'auto' | 'best'
+  function pitchVar()  { return settings().listenPitchVar !== false; }    // default ON
 
   function refreshVoices() {
     if (!supported) return;
@@ -49,18 +51,51 @@ const LAudio = (() => {
                                      : (speechSynthesis.onvoiceschanged = refreshVoices);
   }
 
+  /* ---------- voice quality ranking ---------- */
   function hashStr(s) {
     let h = 0;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
     return h;
   }
-  function voiceFor(speaker) {
-    if (!voices.length || !speaker) return null;
-    return voices[hashStr(speaker) % voices.length];
+
+  const BAD_RE  = /espeak|compact|robosoft|festival|pico|flite|rhvoice|novel|robot|metal/;
+  const NEURAL_RE = /natural|neural|premium|enhanced|siri|wavenet|journey|studio/;
+  const OK_RE   = /google|microsoft|online|eloquence/;
+
+  function scoreVoice(v) {
+    const n = (v.name || '').toLowerCase();
+    let s = 0;
+    if (n.indexOf('natural') !== -1) s += 100;       // Edge "Online (Natural)" — best free voices
+    else if (NEURAL_RE.test(n))      s += 70;        // neural/premium class
+    if (OK_RE.test(n))               s += 20;
+    if (n.indexOf('online') !== -1)  s += 25;        // cloud-rendered > local SAPI
+    if (v.localService === false)    s += 8;
+    if (BAD_RE.test(n))              s -= 90;        // robotic engines
+    if (v.lang === 'en-GB' || /^en-GB/i.test(v.lang || '')) s += 25;   // IELTS = British
+    else if (v.lang === 'en-US' || v.lang === 'en-AU')      s += 12;
+    else if (/^en/i.test(v.lang || ''))                     s += 4;
+    return s;
   }
+
+  function rankedVoices() {
+    if (!voices.length) return [];
+    return voices.slice().sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  }
+
+  function voiceFor(speaker) {
+    const ranked = rankedVoices();
+    if (!ranked.length) return null;
+    if (voiceMode() === 'best' || ranked.length === 1) return ranked[0];
+    const pool = ranked.slice(0, Math.min(4, ranked.length));
+    /* if the best voice clearly outclasses the rest (e.g. the only
+       Natural voice among robotic ones), use it for everyone */
+    if (scoreVoice(pool[0]) - scoreVoice(pool[pool.length - 1]) >= 80) return pool[0];
+    return pool[hashStr(speaker || 'X') % pool.length];
+  }
+
   function pitchFor(speaker) {
-    if (!speaker) return 1;
-    return [0.85, 1.12, 1.0, 0.92, 1.18][hashStr(speaker) % 5];
+    if (!speaker || !pitchVar()) return 1;
+    return [0.92, 1.08, 1.0, 0.95, 1.1][hashStr(speaker) % 5];
   }
 
   /* Build sentence queue from transcript lines ("SPEAKER: text" or plain) */
@@ -78,6 +113,7 @@ const LAudio = (() => {
     });
     idx = 0;
     state = 'idle';
+    if (!userRateSet) rate = getRate();   // re-sync with saved Settings
     emit('state');
   }
 
@@ -87,6 +123,7 @@ const LAudio = (() => {
       const u = new SpeechSynthesisUtterance(text);
       u.rate = rate;
       u.pitch = pitchFor(speaker);
+      u.volume = 1;
       u.lang = 'en-GB';
       const v = voiceFor(speaker);
       if (v) u.voice = v;
@@ -117,7 +154,7 @@ const LAudio = (() => {
       step(my);
     } catch (e) {
       if (my !== session) return;
-      if (e.message === 'interrupted' || e.message === 'canceled') return;   // deliberate stop/pause
+      if (e.message === 'interrupted' || e.message === 'canceled') return;
       state = 'idle'; emit('state'); emit('error', e);
     }
   }
@@ -126,6 +163,7 @@ const LAudio = (() => {
     if (!supported || !queue.length) return;
     if (state === 'paused') return resume();
     session++; speechSynthesis.cancel();
+    if (!userRateSet) rate = getRate();
     if (idx >= queue.length) idx = 0;
     state = 'playing';
     emit('state'); emit('playcount');
@@ -134,7 +172,7 @@ const LAudio = (() => {
   }
   function pause() {
     if (state !== 'playing') return;
-    session++; speechSynthesis.cancel();   // reliable cross-browser pause: resume replays current sentence
+    session++; speechSynthesis.cancel();
     state = 'paused'; emit('state'); emit('sentence', { idx, total: queue.length, item: queue[idx] || null, state });
   }
   function resume() {
@@ -154,10 +192,29 @@ const LAudio = (() => {
     if (state === 'playing') { session++; emit('state'); const my = session; step(my); }
     else emit('sentence', { idx, total: queue.length, item: queue[idx] || null, state });
   }
-  function setRate(r) { rate = r; }
+  function setRate(r) { rate = r; userRateSet = true; }
   function status() { return { state, idx, total: queue.length, supported }; }
 
-  return { supported: () => supported, load, play, pause, resume, stop, skip, setRate, status, on };
+  /* ---------- Settings helpers ---------- */
+  function speakTest(text) {
+    return new Promise((resolve, reject) => {
+      if (!supported) return reject(new Error('no-tts'));
+      speechSynthesis.cancel();
+      rate = getRate();
+      const u = new SpeechSynthesisUtterance(text || 'This is how your listening recordings will sound. The winding river passed beneath the old stone bridge.');
+      u.rate = rate; u.pitch = pitchFor('TEST'); u.lang = 'en-GB';
+      const v = voiceFor('TEST');
+      if (v) u.voice = v;
+      u.onend = resolve; u.onerror = (e) => reject(new Error(e.error || 'speech-error'));
+      speechSynthesis.speak(u);
+    });
+  }
+  function ranked() {
+    return rankedVoices().slice(0, 5).map(v =>
+      ({ name: v.name, lang: v.lang, score: scoreVoice(v) }));
+  }
+
+  return { supported: () => supported, load, play, pause, resume, stop, skip, setRate, status, on, speakTest, ranked };
 })();
 
 /* ==========================================================
@@ -458,7 +515,7 @@ const ListeningBank = (() => {
   }
 
   /* ==========================================================
-     AI GENERATOR — v2 (soft counts + sanitize + balance)
+     AI GENERATOR — v3 (soft counts + sanitize + balance)
      ========================================================== */
   const GEN_SYSTEM = [
     'You are a senior Cambridge IELTS test writer who produces authentic IELTS Listening material.',
@@ -496,7 +553,7 @@ const ListeningBank = (() => {
      "allow": "ONE WORD AND/OR A NUMBER", "formTitle": "FORM HEADING",
      "questions": [{"label": "Room type required", "answer": "family"}]},
     {"title": "Questions 7-10", "type": "mcq", "instruction": "Choose the correct letter, A, B or C.",
-     "questions": [{"prompt": "question", "options": [{"label": "A", "text": "..."}], "answer": "B"}]},
+     "questions": [{"prompt": "question", "options": [{"label","text"}], "answer": "B"}]},
     {"title": "Questions 25-28", "type": "match", "instruction": "Choose FOUR answers from the box.",
      "pool": [{"label": "A", "text": "..."}],
      "questions": [{"prompt": "Person", "answer": "B"}]},
@@ -679,8 +736,7 @@ Respond with ONLY one JSON object in this schema:
         questions: qs
       };
       if (type === 'fill') {
-        /* guarantee a renderer: form style OR note lines
-           (fill has no input in the generic qItem renderer) */
+        /* guarantee a renderer: form style OR note lines */
         if (!ng.formTitle) ng.notes = true;
       }
       if (type === 'match') {
@@ -704,9 +760,6 @@ Respond with ONLY one JSON object in this schema:
       signal
     });
     const obj = AI.extractJSON(raw);
-    if (!obj.scenario === undefined || !Array.isArray(obj.transcript)) {
-      // tolerate missing scenario; transcript is essential
-    }
     if (!Array.isArray(obj.transcript) || !obj.transcript.length) {
       throw new Error(`AI returned no transcript for Section ${bp.part}.`);
     }
@@ -726,17 +779,19 @@ Respond with ONLY one JSON object in this schema:
     obj.scenario = (typeof obj.scenario === 'string' && obj.scenario.trim()) ? obj.scenario.trim() : scenario;
     obj.context = obj.context || planContext;
 
-    /* v2: full structural repair before the section is accepted */
+    /* full structural repair before the section is accepted */
     sanitizeSection(obj, bp.part);
     return obj;
   }
 
   /* ---------- retry wrapper: structural failures only; a section
-     with a valid transcript is always kept (top-up fills it) ---------- */
+     with a valid transcript is always kept (top-up fills it).
+     The real underlying error is surfaced for diagnosis. ---------- */
   async function genSectionWithRetry(scenario, bp, planContext, continuity, { onStep = () => {}, signal } = {}) {
     const MAX_ATTEMPTS = 3;
     let feedback = '';
     let last = null;
+    let lastError = null;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
@@ -744,6 +799,7 @@ Respond with ONLY one JSON object in this schema:
         last = sec;
 
         if (totalQuestions(sec) === 0) {
+          lastError = new Error('no structurally valid questions in the response');
           feedback = 'Your previous response contained no structurally valid questions (wrong shapes, missing pools or options). ' +
                      'Return the complete JSON object exactly in the requested schema.';
           onStep(bp.part - 1, 'active', `retry ${attempt} — repairing questions`);
@@ -756,6 +812,7 @@ Respond with ONLY one JSON object in this schema:
         return sec;
 
       } catch (e) {
+        lastError = e;
         feedback = 'Your previous response was rejected because: ' + (e.message || 'invalid output') +
                    ' Return the complete, valid JSON object now.';
         onStep(bp.part - 1, 'active', `retry ${attempt} — fixing output`);
@@ -767,8 +824,10 @@ Respond with ONLY one JSON object in this schema:
                    `after ${MAX_ATTEMPTS} attempts — assembly top-up will fill the rest.`);
       return last;
     }
-    throw new Error(`Section ${bp.part} could not be generated after ${MAX_ATTEMPTS} attempts. ` +
-                    `Please generate again, or use the built-in test.`);
+
+    const detail = lastError ? ` Last error: ${String(lastError.message || lastError).slice(0, 300)}` : '';
+    throw new Error(`Section ${bp.part} could not be generated after ${MAX_ATTEMPTS} attempts.${detail} ` +
+                    `Please generate again (or switch model in Settings), or use the built-in test.`);
   }
 
   /* ---------- safe per-section trim to exactly 10 ---------- */
