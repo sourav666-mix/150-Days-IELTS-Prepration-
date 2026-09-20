@@ -1,6 +1,8 @@
 /* ============================================================
-   IELTS PRO 150 — Utilities
+   IELTS PRO 150 — Utilities  (v2)
    DOM helpers · formatting · toasts · modals · speech · rings
+   v2: ringSVG uses style="" attributes — SVG presentation
+   attributes (stroke="var(--x)") are unreliable cross-browser.
    ============================================================ */
 
 'use strict';
@@ -146,15 +148,17 @@ const Modal = (() => {
   return { open, confirm: confirmBox };
 })();
 
-/* ---------- SVG score ring ---------- */
+/* ---------- SVG score ring (v2 — style-attr fix) ---------- */
 function ringSVG(percent, { size = 120, stroke = 10, color = 'var(--accent)', label = '', sub = '' } = {}) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const p = clamp(percent || 0, 0, 1);
   return `
   <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="ring" role="img">
-    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${stroke}"/>
-    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none"
+      style="stroke:var(--line)" stroke-width="${stroke}"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none"
+      style="stroke:${color}" stroke-width="${stroke}"
       stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${(c * (1 - p)).toFixed(2)}"
       transform="rotate(-90 ${size / 2} ${size / 2})"/>
     <text x="50%" y="50%" text-anchor="middle" dy="${sub ? '-4' : '6'}"
@@ -174,7 +178,8 @@ function downloadFile(filename, content, type = 'application/json') {
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
 }
 
-/* ---------- Text-to-speech (Listening module — Batch 5) ---------- */
+/* ---------- Text-to-speech (simple helper — the Listening module
+   uses its own LAudio engine in data/listening-data.js) ---------- */
 let _activeUtterance = null;
 
 function speak(text, { rate = 0.95, pitch = 1, lang = 'en-GB' } = {}) {
