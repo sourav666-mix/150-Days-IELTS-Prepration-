@@ -1,9 +1,14 @@
 /* ============================================================
-   IELTS PRO 150 — Writing Module
+   IELTS PRO 150 — Writing Module  (v2 — fixed)
    Flow: overview → exam (60-min timer · Task 1/2 tabs · word
    meters · PDF upload · autosave) → submit → AI per-task
    analysis (4 criteria, corrections, upgrades, model answers)
    → overall band → re-practice
+   Fixes in v2: typed & PDF-uploaded answers are now synced into
+   session state (Submit previously always saw empty answers),
+   previous session's timer fully stopped on mount (orphaned
+   timer could auto-submit a new session), autosave interval
+   leak on re-practice, dead code removed.
    ============================================================ */
 
 'use strict';
@@ -93,6 +98,8 @@ window.Views = window.Views || {};
     text = text.slice(0, 14000);
 
     const ta = $('#wt-text' + taskIdx);
+    /* v2: refreshTask() now syncs the textarea into session state,
+       so imported PDF answers reach Submit correctly. */
     const apply = () => { ta.value = text; refreshTask(taskIdx); draftWrite(); };
 
     if (ta.value.trim().length > 0) {
@@ -151,7 +158,11 @@ window.Views = window.Views || {};
   /* ==========================================================
      2 · EXAM
      ========================================================== */
-  function startExam(el) {
+  function startExam(el, resumeRemaining) {
+    /* v2 FIX: clear any previous timer/autosave before creating
+       new ones (prevents the interval leak on re-practice) */
+    cleanupExam();
+
     buildExamUI(el);
     S.timer = new ExamTimer({
       duration: CONFIG.WRITING_DURATION,
@@ -166,6 +177,10 @@ window.Views = window.Views || {};
       },
       onExpire: () => { toast('Time is up — your tasks were submitted automatically.', 'warn', 5000); submit(true); }
     });
+    if (resumeRemaining != null) {
+      S.timer.remaining = Math.max(1, resumeRemaining);
+      S.timer._render();
+    }
     S.timer.start();
     S.autosave = setInterval(() => { if (S.phase === 'exam' && !S.timer.paused) draftWrite(); }, 8000);
     draftWrite();
@@ -179,7 +194,6 @@ window.Views = window.Views || {};
   function buildExamUI(el) {
     const t1 = S.plan.writing.task1, t2 = S.plan.writing.task2;
     const chart = task1Chart();
-    const guide1 = WritingBank.essayGuide('Opinion'); // generic; Task 1 guide below
     const t1Guide = chart && chart.kind === 'process'
       ? ['Introduction — paraphrase the process description.', 'Overview — state how many stages there are and where it begins/ends.', 'Body — describe the stages IN SEQUENCE using the passive voice (is crushed, is heated…).', 'Use sequence linkers: initially, subsequently, at the following stage, finally.']
       : chart && chart.kind === 'map'
@@ -188,7 +202,7 @@ window.Views = window.Views || {};
 
     el.innerHTML = `
       <div class="exam-bar" id="wt-timerwrap">
-        <div class="timer-display clickable" id="wt-clock" title="Click to pause / resume the timer">${icon('clock', 21)}<span id="wt-timer">${fmtTime(CONFIG.WRITING_DURATION)}</span></div>
+        <div class="timer-display">${icon('clock', 21)}<span id="wt-timer">${fmtTime(CONFIG.WRITING_DURATION)}</span></div>
         <div class="progressbar"><div class="progressbar-fill" id="wt-bar"></div></div>
         <span class="pill" id="wt-count">T1 0w · T2 0w</span>
         <button class="btn btn-sm btn-ghost" id="wt-pause">${icon('pause', 14)} Pause</button>
@@ -264,7 +278,7 @@ window.Views = window.Views || {};
       draftWrite();
     }));
 
-    /* ----- editors ----- */
+    /* ----- editors (refreshTask syncs text into session state) ----- */
     [1, 2].forEach(i => {
       $('#wt-text' + i, el).addEventListener('input', () => refreshTask(i));
     });
@@ -275,25 +289,19 @@ window.Views = window.Views || {};
       $('#wt-file' + i, el).addEventListener('change', () => handlePdfUpload(i));
     });
 
-    /* ----- pause — via the button or by clicking the timer clock ----- */
-    function togglePause() {
+    /* ----- pause ----- */
+    $('#wt-pause', el).addEventListener('click', () => {
       const t = S.timer;
       if (t.expired) return;
       if (t.paused) { t.resume(); toast('Timer resumed.', 'info', 1500); }
       else { t.pause(); draftWrite(); toast('Paused — the countdown is stopped.', 'warn', 2200); }
       $('#wt-pause', el).innerHTML = t.paused ? `${icon('play', 14)} Resume` : `${icon('pause', 14)} Pause`;
-    }
-    $('#wt-pause', el).addEventListener('click', togglePause);
-    $('#wt-clock', el).addEventListener('click', () => {
-      /* mock days / strict-pause preference allow no pausing */
-      if (document.body.hasAttribute('data-mock') || document.body.hasAttribute('data-strict-pause')) return;
-      togglePause();
     });
 
     /* ----- submit ----- */
     $('#wt-submit', el).addEventListener('click', confirmSubmit);
 
-    /* restore meters + counters */
+    /* restore meters + counters (also syncs any restored draft text) */
     refreshTask(1); refreshTask(2);
     if (S.activeTask === 2) $('.task-tab[data-task="2"]', el).click();
   }
@@ -301,6 +309,15 @@ window.Views = window.Views || {};
   function refreshTask(i) {
     const t = $('#wt-text' + i);
     if (!t) return;
+
+    /* v2 CRITICAL FIX: keep session state in sync with the live
+       editor. Previously S.t1Text/S.t2Text were never updated
+       from the textareas, so Submit always saw empty answers
+       ("Write or upload at least one answer…" false error), PDF
+       uploads never reached marking, and drafts saved empty. */
+    if (i === 1) S.t1Text = t.value;
+    else S.t2Text = t.value;
+
     const words = wc(t.value);
     const min = i === 1 ? CONFIG.WRITING.TASK1_MIN_WORDS : CONFIG.WRITING.TASK2_MIN_WORDS;
     const wm = $('#wm' + i);
@@ -344,8 +361,8 @@ window.Views = window.Views || {};
   }
 
   function cleanupExam() {
-    if (S.autosave) { clearInterval(S.autosave); S.autosave = null; }
-    if (S.timer) S.timer.pause();
+    if (S && S.autosave) { clearInterval(S.autosave); S.autosave = null; }
+    if (S && S.timer) S.timer.pause();
   }
 
   async function submit(auto) {
@@ -365,7 +382,7 @@ window.Views = window.Views || {};
       minutesUsed, auto: !!auto, wordsT1, wordsT2,
       t1: { aiDone: false }, t2: { aiDone: false }, overall: null, model: AI.currentModel()
     };
-    draftWrite({ status: 'done', result: S.result, answers: undefined });
+    draftWrite({ status: 'done', result: S.result });
 
     showResults(document.getElementById('view-writing'), true);
     S.submitting = false;
@@ -548,8 +565,10 @@ window.Views = window.Views || {};
      ========================================================== */
   window.Views.writing = {
     mount(el) {
-      cleanupExam.call ? null : null;
-      if (S && S.autosave) clearInterval(S.autosave);
+      /* v2 FIX: fully tear down any previous session first — an
+         orphaned still-running timer could otherwise auto-submit
+         this fresh session when it expired. */
+      if (S) cleanupExam();
 
       const p = Store.getProgress();
       const day = p.currentDay;
@@ -588,10 +607,7 @@ window.Views = window.Views || {};
           $('[data-resume]', m.el).addEventListener('click', () => {
             m.close();
             S.phase = 'exam';
-            startExam(el);
-            S.timer.remaining = Math.max(1, d.remaining || CONFIG.WRITING_DURATION);
-            S.timer._render();
-            refreshTask(1); refreshTask(2);
+            startExam(el, d.remaining);
           });
           $('[data-fresh]', m.el).addEventListener('click', () => {
             m.close();
